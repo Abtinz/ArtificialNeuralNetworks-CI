@@ -1,3 +1,4 @@
+from math import sqrt
 import numpy as np
 
 class FC:
@@ -25,7 +26,8 @@ class FC:
          
 
         elif self.initialize_method == "he":
-            return None
+            #using gaussian distribution
+            return np.random.randn((self.input_size, self.output_size)) *  sqrt(2 / self.input_size)
 
         else:
             raise ValueError("Invalid initialization method")
