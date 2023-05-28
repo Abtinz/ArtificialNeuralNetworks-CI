@@ -14,14 +14,10 @@ class FC:
         self.reshaped_shape = None
     
     def initialize_weights(self):
-        if self.initialize_method == "random":
-            # TODO: Initialize weights with random values using np.random.randn
-            weights = []
-            for index in range(self.input_size):
-                weights[index] = np.random.randn
-            return weights
+        
+        if self.initialize_method == "random":  return np.random.randn(self.input_size, self.output_size)
 
-        #
+        #This method initializes the weights with random numbers drawn from a uniform distribution with a specific range.
         elif self.initialize_method == "xavier":
             return None
 
