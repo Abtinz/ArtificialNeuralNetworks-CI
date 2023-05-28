@@ -30,32 +30,15 @@ class Activation:
 
 class Sigmoid(Activation):
     def forward(self, Z: np.ndarray) -> np.ndarray:
-        """
-        Sigmoid activation function.
-            args:
-            x: input to the activation function
-            returns:
-                sigmoid(x)
-        """
-        # TODO: Implement sigmoid activation function
-        A = None
-        return A
+        return (1 / (1 + np.exp(-Z)))
 
     def backward(self, dA: np.ndarray, Z: np.ndarray) -> np.ndarray:
-        """
-        Backward pass for sigmoid activation function.
-            args:
-                dA: derivative of the cost with respect to the activation
-                Z: input to the activation function
-            returns:
-                derivative of the cost with respect to Z
-        """
+        
         A = self.forward(Z)
-        # TODO: Implement backward pass for sigmoid activation function
-        dZ = None
+        dZ = dA *(A * (1 - A)) 
         return dZ
     
-
+ #relu forward -> z >= 0 : Z and Z < 0: 0
 class ReLU(Activation):
     def forward(self, Z: np.ndarray) -> np.ndarray:
         """
@@ -65,8 +48,8 @@ class ReLU(Activation):
             returns:
                 relu(x)
         """
-        # TODO: Implement ReLU activation function
-        A = None
+       
+        A = np.maximum(0, Z)
         return A
 
     def backward(self, dA: np.ndarray, Z: np.ndarray) -> np.ndarray:
@@ -78,12 +61,10 @@ class ReLU(Activation):
             returns:
                 derivative of the cost with respect to Z
         """
-        # TODO: Implement backward pass for ReLU activation function
-        dZ = None
-        dZ[Z <= 0] = 0
-
+        
+        dZ = np.copy(dA)
+        dZ[Z <= 0] = 0 
         return dZ
-    
     
 
 class Tanh(Activation):
@@ -95,9 +76,7 @@ class Tanh(Activation):
             returns:
                 tanh(x)
         """
-        # TODO: Implement tanh activation function
-        A = None
-        return A
+        return np.tanh(Z)
 
     def backward(self, dA: np.ndarray, Z: np.ndarray) -> np.ndarray:
         """
@@ -108,36 +87,20 @@ class Tanh(Activation):
             returns:
                 derivative of the cost with respect to Z
         """
-        A = self.forward(Z)
-        # TODO: Implement backward pass for tanh activation function
-        dZ = None
-        return dZ
+        #d(tanh) -> 1 - square of forward resualt  
+        return dA * (1 - np.square(self.forward(Z)))
     
 class LinearActivation(Activation):
+    """
+        Linear activation function. the most simple activation function in the world!
+        A  = Z    
+    """
     def linear(Z: np.ndarray) -> np.ndarray:
-        """
-        Linear activation function.
-            args:
-                x: input to the activation function
-            returns:
-                x
-        """
-        # TODO: Implement linear activation function
-        A = None
-        return A
+        return Z
 
     def backward(dA: np.ndarray, Z: np.ndarray) -> np.ndarray:
-        """
-        Backward pass for linear activation function.
-            args:
-                dA: derivative of the cost with respect to the activation
-                Z: input to the activation function
-            returns:
-                derivative of the cost with respect to Z
-        """
-        # TODO: Implement backward pass for linear activation function
-        dZ = None
-        return dZ
+        #(dx/dx)*dA = 1 * dA = dA
+        return dA
 
 def get_activation(activation: str) -> tuple:
     """
