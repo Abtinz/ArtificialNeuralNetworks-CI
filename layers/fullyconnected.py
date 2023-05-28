@@ -1,6 +1,9 @@
 import numpy as np
 
 class FC:
+
+    # self name -> will use for updating wegthis
+    # self initialize_method is used in weights initializing ...
     def __init__(self, input_size : int, output_size : int, name : str, initialize_method : str="random"):
         self.input_size = input_size
         self.output_size = output_size
@@ -13,8 +16,12 @@ class FC:
     def initialize_weights(self):
         if self.initialize_method == "random":
             # TODO: Initialize weights with random values using np.random.randn
-            return None * 0.01
+            weights = []
+            for index in range(self.input_size):
+                weights[index] = np.random.randn
+            return weights
 
+        #
         elif self.initialize_method == "xavier":
             return None
 
