@@ -19,16 +19,15 @@ class BinaryCrossEntropy:
         
         return np.squeeze(cost)
 
+    
+    # this function will compute the derivative of the binary cross entropy loss.
+    #  arguments:
+    #    y --> real labels and  batch_size
+    #    y_hat --> predicted labels and batch size
+    #  returns:  binary cross entropy loss !
     def backward(self, y_hat: np.ndarray, y: np.ndarray) -> np.ndarray:
-        """
-        Computes the derivative of the binary cross entropy loss.
-            args:
-                y: true labels (n_classes, batch_size)
-                y_hat: predicted labels (n_classes, batch_size)
-            returns:
-                derivative of the binary cross entropy loss
-        """
-        epsilon =1e-14  
+       
+        epsilon =1e-7 
         dZ = (y_hat - y) / (y_hat * (1 - y_hat) + epsilon)
         return dZ
 
