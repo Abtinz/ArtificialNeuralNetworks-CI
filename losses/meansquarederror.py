@@ -9,14 +9,19 @@ class MeanSquaredError:
     #    arguments:
     #        y --> real labels and  batch_size
     #        y_hat --> predicted labels and batch size
-    #    returns:  binary cross entropy loss !
+    #    returns:  mean squared loss !
     def compute(self, y_pred, y_true):
         
         #(y_pred.shape[1] -> batch_size)
         cost = (1 / (2 * y_pred.shape[1])) * np.sum((y_pred - y_true) ** 2)
         #we are using np.squeeze on our function because error dimension is 1x1 ...
         return np.squeeze(cost)
-    
+     
+    # this function will compute the derivative of the binary cross entropy loss.
+    #  arguments:
+    #    y --> real labels and  batch_size
+    #    y_hat --> predicted labels and batch size
+    #  returns:  binary cross entropy loss !
     def backward(self, y_pred, y_true):
 
         return (1 / y_pred.shape[1]) * (y_pred - y_true) #(y_pred.shape[1] -> batch_size)
