@@ -14,6 +14,7 @@ class MeanSquaredError:
         
         #(y_pred.shape[1] -> batch_size)
         cost = (1 / (2 * y_pred.shape[1])) * np.sum((y_pred - y_true) ** 2)
+        #we are using np.squeeze on our function because error dimension is 1x1 ...
         return np.squeeze(cost)
     
     def backward(self, y_pred, y_true):
