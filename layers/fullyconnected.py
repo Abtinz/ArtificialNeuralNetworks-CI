@@ -3,7 +3,7 @@ import numpy as np
 
 class FC:
 
-    # self name -> will use for updating wegthis
+    # self name -> will use for updating weight's
     # self initialize_method is used in weights initializing ...
     def __init__(self, input_size : int, output_size : int, name : str, initialize_method : str="random"):
         self.input_size = input_size
@@ -31,34 +31,31 @@ class FC:
 
         else:
             raise ValueError("Invalid initialization method")
-    
+
+    #Initialize bias with zeros and layer out put count which will show the number of our perceptrons      
     def initialize_bias(self):
-        # TODO: Initialize bias with zeros
-        return np.zeros((None, 1))
+        return np.zeros((self.output_size, 1))
     
+    #here, forwarding in o=network is implemented
+    #A_prev -> the are activations that reached from previous layer(they are layer inputs)
+    #A_prev.shape returns (batch_size, input_size) so we can know the output size of our last layer which is input size of current layer
+    #it will return a out put of this fully connected forwarding
     def forward(self, A_prev):
-        """
-        Forward pass for fully connected layer.
-            args:
-                A_prev: activations from previous layer (or input data)
-                A_prev.shape = (batch_size, input_size)
-            returns:
-                Z: output of the fully connected layer
-        """
-        # NOTICE: BATCH_SIZE is the first dimension of A_prev
+        
         self.input_shape = A_prev.shape
         A_prev_tmp = np.copy(A_prev)
 
-        # TODO: Implement forward pass for fully connected layer
-        if None: # check if A_prev is output of convolutional layer
-            batch_size = None
-            A_prev_tmp = A_prev_tmp.reshape(None, -1).T
-        self.reshaped_shape = A_prev_tmp.shape
-        
-        # TODO: Forward part
-        W, b = None
-        Z = None @ None + None
-        return Z
+        if len(A_prev_tmp.shape) > 2: # check if A_prev is output of convolutional layer
+            batch_size = A_prev_tmp.shape[0]
+            A_prev_tmp = A_prev_tmp.reshape(batch_size, -1).T
+            self.reshaped_shape = A_prev_tmp.shape
+    
+        #Forward part
+        weight, bias = self.parameters
+        # weight.T = weight_transpose
+        # output X(input) * weight_transpose +bias
+        output = np.dot(weight.T, A_prev_tmp) + bias
+        return output
     
     def backward(self, dZ, A_prev):
         """
