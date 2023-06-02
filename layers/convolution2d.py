@@ -15,12 +15,9 @@ class Conv2D:
 
     def initialize_weights(self):
         """
-        Initialize weights.
-        returns:
-            weights: initialized kernel with shape: (kernel_size[0], kernel_size[1], in_channels, out_channels)
+        Initializing weights by random or xavier or he method!
+        returns: weights: initialized kernel with shape: (kernel_size[0], kernel_size[1], in_channels, out_channels)
         """
-        # TODO: Implement initialization of weights
-        
         if self.initialize_method == "random":
             return None * 0.01
         if self.initialize_method == "xavier":

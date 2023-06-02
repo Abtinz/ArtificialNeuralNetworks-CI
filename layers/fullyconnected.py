@@ -57,29 +57,31 @@ class FC:
         output = np.dot(weight.T, A_prev_tmp) + bias
         return output
     
-    def backward(self, dZ, A_prev):
-        """
-        Backward pass for fully connected layer.
-            args:
-                dZ: derivative of the cost with respect to the output of the current layer
-                A_prev: activations from previous layer (or input data)
-            returns:
-                dA_prev: derivative of the cost with respect to the activation of the previous layer
-                grads: list of gradients for the weights and bias
-        """
-        A_prev_tmp = np.copy(A_prev)
-        if None: # check if A_prev is output of convolutional layer
-            batch_size = None
-            A_prev_tmp = A_prev_tmp.reshape(None, -1).T
+  
+    # Backward pass for fully connected layer.
+    #    args:
+    #         dZ: derivative of the cost with respect to the output of the current layer
+    #         A_prev: activations from previous layer (or input data)
+    #     returns:
+    #         dA_prev: derivative of the cost with respect to the activation of the previous layer
+    #         grads: list of gradients for the weights and bias
 
-        # TODO: backward part
-        W, b = None
-        dW = None @ None.T / None
-        db = np.sum(None, axis=1, keepdims=True) / None
-        dA_prev = None.T @ None
+    def backward(self, dZ, A_prev):
+   
+        A_prev_tmp = np.copy(A_prev)
+        if len(A_prev_tmp.shape) > 2: # check if A_prev is output of convolutional layer
+            batch_size = A_prev_tmp.shape[0]
+            A_prev_tmp = A_prev_tmp.reshape(batch_size, -1).T
+
+        # backward part
+        weight, bias = self.parameters
+        dW = np.dot(A_prev_tmp, dZ.T) / A_prev_tmp.shape[1]
+        db = np.sum(dZ, axis=1, keepdims=True) / A_prev_tmp.shape[1]
+        dA_prev = np.dot(weight, dZ)
         grads = [dW, db]
+        
         # reshape dA_prev to the shape of A_prev
-        if None:    # check if A_prev is output of convolutional layer
+        if len(A_prev.shape) > 2:    # check if A_prev is output of convolutional layer
             dA_prev = dA_prev.T.reshape(self.input_shape)
         return dA_prev, grads
     
