@@ -1,6 +1,21 @@
+
 import numpy as np
 
+# The Conv2D class is an implementation of a 2D convolutional layer for use in a convolutional neural network. 
+# This layer is responsible for extracting features from the input data by sliding a kernel over the input and 
+# computing the dot product between the kernel and the input at each image position.
 class Conv2D:
+    #properties
+    
+    # in_channels -> the number of input data channels
+    # out_channels -> the number of output data channels
+    # name -> a string identifier for the layer
+    # kernel_size ->  the size of the kernel for height and width
+    # stride -> the stride(steps) for the kernel when sliding over the input, its for height and width sliding.
+    # padding: the amount of padding to add to the input
+    # initialize_method: a string indicating the method to use for initializing the weights of the kernel
+    #parameters -> layer kernel weights and bias
+    
     def __init__(self, in_channels, out_channels, name, kernel_size=(1, 1), stride=(1, 1), padding=(1, 1), initialize_method="random"):
         self.in_channels = in_channels
         self.out_channels = out_channels
@@ -13,19 +28,26 @@ class Conv2D:
         self.parameters = [self.initialize_weights(), self.initialize_bias()]
 
 
+    #  Initializing kernel weights.
+    # returns: weights: initialized kernel with shape: (kernel_size[0], kernel_size[1], in_channels, out_channels)
     def initialize_weights(self):
-        """
-        Initializing weights by random or xavier or he method!
-        returns: weights: initialized kernel with shape: (kernel_size[0], kernel_size[1], in_channels, out_channels)
-        """
-        if self.initialize_method == "random":
-            return None * 0.01
-        if self.initialize_method == "xavier":
-            return None
-        if self.initialize_method == "he":
-            return None
+       
+        if self.initialize_method == "random":  return np.random.randn(self.input_size, self.output_size)
+
+        #This method initializes the weights with random numbers drawn from a uniform distribution with a specific range.
+        elif self.initialize_method == "xavier":
+            #uniform range
+            range_value = np.sqrt( 1 / (self.input_size + self.output_size))
+            return np.random.uniform(-range_value, range_value, (self.input_size, self.output_size))
+         
+
+        elif self.initialize_method == "he":
+            #using gaussian distribution
+            return np.random.randn((self.input_size, self.output_size)) *  sqrt(2 / self.input_size)
+
         else:
             raise ValueError("Invalid initialization method")
+    
     
     def initialize_bias(self):
         """
