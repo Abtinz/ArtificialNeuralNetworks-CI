@@ -91,51 +91,22 @@ class Conv2D:
         A_padded = np.pad(A, ((0, 0), (padding[0], padding[0]), (padding[1], padding[1]), (0, 0)), mode="constant", constant_values=(pad_value, pad_value))
         return A_padded
     
-    def single_step_convolve(self, a_slic_prev, W, b):
-        """
-        Convolve a slice of the input with the kernel.
-        args:
-            a_slic_prev: slice of the input data
-            W: kernel
-            b: bias
-        returns:
-            Z: convolved value
-        """
-        # TODO: Implement single step convolution
-        Z = None    # hint: element-wise multiplication
-        Z = None    # hint: sum over all elements
-        Z = None    # hint: add bias as type float using np.float(None)
-        return Z
+    #this function will convolve a slice of the input with the kernel.
+    #at first, we will do element-wise multiplication between the slice of input and the kernel!
+    #then we will do summation over all entries of the volume s.
+    #at last, we will Add bias to the result of the dot product.
+    # arguments ->
+    #       a_slic_prev: slice of the input data
+    #       w_kernel: kernel
+    #       bias: bias
+    #       returns:  convolved value
+    def single_step_convolve(self, a_slic_prev, w_kernel, bias):
+        
+        summation_of_dot_product = np.sum( np.multiply(a_slic_prev, w_kernel) )
+        convolved_product = float(summation_of_dot_product + bias)
+        return convolved_product
 
-    def forward(self, A_prev):
-        """
-        Forward pass for convolutional layer.
-            args:
-                A_prev: activations from previous layer (or input data)
-                A_prev.shape = (batch_size, H_prev, W_prev, C_prev)
-            returns:
-                A: output of the convolutional layer
-        """
-        # TODO: Implement forward pass
-        W, b = None
-        (batch_size, H_prev, W_prev, C_prev) = None
-        (kernel_size_h, kernel_size_w, C_prev, C) = None
-        stride_h, stride_w = None
-        padding_h, padding_w = None
-        H, W = None
-        Z = None
-        A_prev_pad = None # hint: use self.pad()
-        for i in range(None):
-            for h in range(None):
-                h_start = None
-                h_end = h_start + None
-                for w in range(None):
-                    w_start = None
-                    w_end = w_start + None
-                    for c in range(None):
-                        a_slice_prev = A_prev_pad[i, h_start:h_end, w_start:w_end, :]
-                        Z[i, h, w, c] = None # hint: use self.single_step_convolve()
-        return Z
+
 
     def backward(self, dZ, A_prev):
         """
