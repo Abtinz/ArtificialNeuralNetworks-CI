@@ -33,18 +33,18 @@ class Conv2D:
     # returns: weights: initialized kernel with shape: (kernel_size[0], kernel_size[1], in_channels, out_channels)
     def initialize_weights(self):
        
-        if self.initialize_method == "random":  return np.random.randn(self.input_size, self.output_size)
+        if self.initialize_method == "random":
+            # Initialize weights with random values from a normal distribution
+            return np.random.randn(self.kernel_size[0], self.kernel_size[1], self.in_channels, self.out_channels)
 
-        #This method initializes the weights with random numbers drawn from a uniform distribution with a specific range.
         elif self.initialize_method == "xavier":
-            #uniform range
-            range_value = np.sqrt( 1 / (self.input_size + self.output_size))
-            return np.random.uniform(-range_value, range_value, (self.input_size, self.output_size))
+            # Initialize weights with random values from a uniform distribution with a range determined by the Xavier initialization
+            range_value = np.sqrt( 1 / (self.in_channels * self.kernel_size[0] * self.kernel_size[1] + self.out_channels))
+            return np.random.uniform(-range_value, range_value, (self.kernel_size[0], self.kernel_size[1], self.in_channels, self.out_channels))
          
-
         elif self.initialize_method == "he":
-            #using gaussian distribution
-            return np.random.randn((self.input_size, self.output_size)) *  sqrt(2 / self.input_size)
+            # Initialize weights with random values from a normal distribution with a standard deviation determined by the He initialization
+            return np.random.randn(self.kernel_size[0], self.kernel_size[1], self.in_channels, self.out_channels) *  sqrt(2 / (self.in_channels * self.kernel_size[0] * self.kernel_size[1]))
 
         else:
             raise ValueError("Invalid initialization method")
