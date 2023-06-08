@@ -49,28 +49,34 @@ class Conv2D:
             raise ValueError("Invalid initialization method")
     
     
+    #Initialize bias with zeros and layer out put count which will show the number of our perceptrons.      
     def initialize_bias(self):
-        """
-        Initialize bias.
-        returns:
-            bias: initialized bias with shape: (1, 1, 1, out_channels)
-        
-        """
-        # TODO: Implement initialization of bias
-        return None
+        return np.zeros((self.output_size, 1))
     
+
+    #this function will calculate the shape of the convolutional layer output.
+    #argument -> input_shape: shape of the input of the convolutional layer{
+    # 
+    # batch_size -> the number of examples in a batch.
+    # chanel_count is the number of channels in each example, which is typically 1 for grayscale images or 3 for RGB images! ...
+    # height is the height of the input image in pixels.
+    # width is the width of the input image in pixels.
+    # }
+    #returns -> target_shape: shape of the output of the convolutional layer -> batch_size , output Chanel's count and dimensions
     def target_shape(self, input_shape):
-        """
-        Calculate the shape of the output of the convolutional layer.
-        args:
-            input_shape: shape of the input to the convolutional layer
-        returns:
-            target_shape: shape of the output of the convolutional layer
-        """
-        # TODO: Implement calculation of target shape
-        H = None
-        W = None
-        return (H, W)
+        
+        #extracting input and kernel and stride and padding for output shape calculation
+        batch_size, _ , height, width = input_shape
+        kernel_height, kernel_width = self.kernel_size
+        stride_height, stride_width = self.stride
+        padding_height, padding_width = self.padding
+        
+        # Calculate the height and width of the output
+        output_height = (height + 2*padding_height - kernel_height)//stride_height + 1
+        output_width = (width + 2*padding_width - kernel_width)//stride_width + 1
+        chanel_count = self.out_channels
+
+        return (batch_size, chanel_count , output_height, output_width)
     
     def pad(self, A, padding, pad_value=0):
         """
