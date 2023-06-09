@@ -1,124 +1,78 @@
 import numpy as np
 
+# this class will help us to implement our MaxPool Layer for pooling operation ...
+# properties ->
+#       kernel_size: size of the kernel
+#       stride: stride of the kernel
+#       mode: max or average
+
 class MaxPool2D:
+
     def __init__(self, kernel_size=(3, 3), stride=(1, 1), mode="max"):
-        """
-        Max pooling layer.
-            args:
-                kernel_size: size of the kernel
-                stride: stride of the kernel
-                mode: max or average
-            Question:Why we don't need to set name for the layer?
-        """
+      
         self.stride = (stride, stride) if isinstance(stride, int) else stride
         self.kernel_size = (kernel_size, kernel_size) if isinstance(kernel_size, int) else kernel_size
         self.mode = mode
     
+    # this function will calculate the shape of the pooling layer output.
+    # argument -> input_shape: shape of the input of the convolutional layer{ 
+    #       batch_size -> the number of examples in a batch.
+    #       chanel_count is the number of channels in each example, which is typically 1 for grayscale images or 3 for RGB images! ...
+    #       height is the height of the input image in pixels.
+    #       width is the width of the input image in pixels.
+    # returns -> target_shape: shape of the output of the pooling layer -> batch_size , output Chanel's count and dimensions
     def target_shape(self, input_shape):
-        """
-        Calculate the shape of the output of the layer.
-            args:
-                input_shape: shape of the input
-            returns:
-                output_shape: shape of the output
-        """
-        # TODO: Implement target_shape
-        H = None
-        W = None
-        return H, W
+        # Get input shape
+        (batch_size, prev_height, prev_width, C_prev) = input_shape
+        # Get kernel and stride sizes
+        kernel_height, kernel_width = self.kernel_size
+        stride_height, stride_width = self.stride
+        # Compute output shape
+        output_height = int(1 + (prev_height - kernel_height) / stride_height)
+        output_width = int(1 + (prev_width - kernel_width) / stride_width)
+        return (batch_size, output_height, output_width, C_prev)
     
+    # Forward pass for max pooling layer.
+    # argument: A_prev: activations from previous layer (or input data)
+    #  returns: output of the max pooling layer
+
     def forward(self, A_prev):
-        """
-        Forward pass for max pooling layer.
-            args:
-                A_prev: activations from previous layer (or input data)
-            returns:
-                A: output of the max pooling layer
-        """
-        # TODO: Implement forward pass for max pooling layer
-        (batch_size, H_prev, W_prev, C_prev) = None
-        (f_h, f_w) = None
-        strideh, stridew = None
-        H, W = None
-        A = np.zeros((None, None, None, None))
-        for i in range(None):
-            for h in range(None):
-                h_start = None
-                h_end = h_start + None
-                for w in range(None):
-                    w_start = None
-                    w_end = w_start + None
-                    for c in range(None):
+       
+        # Get input shape
+        (batch_size, H_prev, W_prev, C_prev) = A_prev.shape
+
+        (batch_size, output_height, output_width, C_prev)  = self.target_shape(A_prev.shape)
+
+        # Get kernel and stride sizes
+        (kernel_height, kernel_width) = self.kernel_size
+        stride_height, stride_width = self.stride
+        
+        # Initialize output tensor
+        output = np.zeros((batch_size, output_height, output_width, C_prev))
+
+        # Loop over batch
+        for i in range(batch_size):
+            # Loop over vertical axis of output volume
+            for h in range(output_height):
+                h_start = h * stride_height
+                h_end = h_start + kernel_height
+                # Loop over horizontal axis of output volume
+                for w in range(output_width):
+                    w_start = w * stride_width
+                    w_end = w_start + kernel_width
+                    # Loop over channels of output volume
+                    for c in range(C_prev):
+                        # Extract slice of input volume
                         a_prev_slice = A_prev[i, h_start:h_end, w_start:w_end, c]
                         if self.mode == "max":
-                            A[i, h, w, c] = None
+                            # Compute max value of slice
+                            output[i, h, w, c] = np.max(a_prev_slice)
                         elif self.mode == "average":
-                            A[i, h, w, c] = None
+                            # Compute average value of slice
+                            output[i, h, w, c] = np.mean(a_prev_slice)
                         else:
-                            raise ValueError("Invalid mode")
+                            raise ValueError("Invalid mode\options: max, average")
 
-        return A
-    
-    def create_mask_from_window(self, x):
-        """
-        Create a mask from an input matrix x, to identify the max entry of x.
-            args:
-                x: numpy array
-            returns:
-                mask: numpy array of the same shape as window, contains a True at the position corresponding to the max entry of x.
-        """
-        # TODO: Implement create_mask_from_window
-        mask = x == None
-        return mask
-    
-    def distribute_value(self, dz, shape):
-        """
-        Distribute the input value in the matrix of dimension shape.
-            args:
-                dz: input scalar
-                shape: the shape (n_H, n_W) of the output matrix for which we want to distribute the value of dz
-            returns:
-                a: distributed value
-        """
-        # TODO: Implement distribute_value
-        (n_H, n_W) = shape
-        average = None
-        a = np.ones(shape) * None
-        return a
-    
-    def backward(self, dZ, A_prev):
-        """
-        Backward pass for max pooling layer.
-            args:
-                dA: gradient of cost with respect to the output of the max pooling layer
-                A_prev: activations from previous layer (or input data)
-            returns:
-                dA_prev: gradient of cost with respect to the input of the max pooling layer
-        """
-        # TODO: Implement backward pass for max pooling layer
-        (f_h, f_w) = self.kernel_size
-        strideh, stridew = self.stride
-        batch_size, H_prev, W_prev, C_prev = None
-        batch_size, H, W, C = None
-        dA_prev = np.zeros((None, None, None, None))
-        for i in range(None):
-            for h in range(None):
-                for w in range(None):
-                    for c in range(None):
-                        h_start = None
-                        h_end = h_start + None
-                        w_start = None
-                        w_end = w_start + None
-                        if self.mode == "max":
-                            a_prev_slice = A_prev[i, h_start:h_end, w_start:w_end, c]
-                            mask = self.create_mask_from_window(None)
-                            dA_prev[i, h_start:h_end, w_start:w_end, c] += np.multiply(None, None)
-                        elif self.mode == "average":
-                            dz = dZ[i, h, w, c]
-                            dA_prev[i, h_start:h_end, w_start:w_end, c] += self.distribute_value(None, None)
-                        else:
-                            raise ValueError("Invalid mode")
-        # Don't change the return
-        return dA_prev, None
+        return output
     
     
