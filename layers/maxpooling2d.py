@@ -75,4 +75,26 @@ class MaxPool2D:
 
         return output
     
+   
+    #  Create a mask from an input matrix x, to identify the max entry of x.
+    #  args:      x: numpy array
+    #  returns:   mask: numpy array of the same shape as window, contains a True at the position corresponding to the max entry of x.
+    def create_mask_from_window(self, x):
+
+        mask = x == np.max(x) # Create a binary mask with True where the max value is located
+        return mask
+    
+    # Distribute the input value in the matrix of dimension shape.
+    # args:
+    #      dz: input scalar
+    #      shape: the shape (n_H, n_W) of the output matrix for which we want to distribute the value of dz
+    def distribute_value(self, dz, shape):
+        # Get shape of output matrix
+        (n_H, n_W) = shape
+        # Compute average value to be distributed
+        average = dz / (n_H * n_W)
+        # Create a matrix of the same shape as the output matrix, with each element equal to the average value
+        averageMatrix = np.ones(shape) * average
+        return averageMatrix
+    
     
