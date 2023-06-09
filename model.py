@@ -36,8 +36,8 @@ class Model:
         returns:
             True if the layer is a layer, False otherwise
         """
-        # TODO: Implement check if the layer is a layer
-        return None
+        # Check if the layer is an instance of the Conv2D, MaxPool2D, or FC class
+        return isinstance(layer, (Conv2D, MaxPool2D, FC))
 
     def is_activation(self, layer):
         """
@@ -47,9 +47,9 @@ class Model:
         returns:
             True if the layer is an activation function, False otherwise
         """
-        # TODO: Implement check if the layer is an activation
-        return None
-    
+        # Check if the layer is an instance of the Activation class or its subclasses
+        return isinstance(layer, Activation)
+
     def forward(self, x):
         """
         Forward pass through the model.
@@ -60,13 +60,17 @@ class Model:
         """
         tmp = []
         A = x
-        # TODO: Implement forward pass through the model
-        # NOTICE: we have a pattern of layers and activations
-        for l in range(None):
-            Z = None
-            tmp.append(None)    # hint add a copy of Z to tmp
-            A = None
-            tmp.append(None)    # hint add a copy of A to tmp
+        # Forward pass through the model
+        # We have a pattern of layers and activations
+        for l in range(len(self.layers_names)):
+            layer = self.model[self.layers_names[l]]
+            if self.is_layer(layer):
+                Z = layer.forward(A)
+                tmp.append(Z.copy())
+                A = Z
+            elif self.is_activation(layer):
+                A = layer.forward(Z)
+                tmp.append(A.copy())
         return tmp
     
     def backward(self, dAL, tmp, x):
@@ -81,17 +85,19 @@ class Model:
         """
         dA = dAL
         grads = {}
-        # TODO: Implement backward pass through the model
-        # NOTICE: we have a pattern of layers and activations
-        # for from the end to the beginning of the tmp list
-        for l in range(None):
-            if l > 2:
+        # Backward pass through the model
+        # We have a pattern of layers and activations
+        # We go from the end to the beginning of the tmp list
+        for l in range(len(self.layers_names), 0, -1):
+            layer = self.model[self.layers_names[l - 1]]
+            if self.is_layer(layer):
                 Z, A = tmp[l - 1], tmp[l - 2]
-            else:
-                Z, A = tmp[l - 1], x
-            dZ = None
-            dA, grad = None
-            grads[self.layers_names[l - 1]] = None
+                dZ = dA * layer.backward(Z)
+                dA, grad = layer.backward(dZ, A)
+                grads[self.layers_names[l - 1]] = grad
+            elif self.is_activation(layer):
+                A = tmp[l - 2]
+                dA = layer.backward(dA, Z)
         return grads
 
     def update(self, grads):
@@ -100,9 +106,10 @@ class Model:
         args:
             grads: gradients of the model
         """
-        for None:
-            if None:    # hint check if the layer is a layer and also is not a maxpooling layer
-                self.model[None].update(None)
+        for layer_name in self.layers_names:
+            layer = self.model[layer_name]
+            if self.is_layer(layer) and not isinstance(layer, MaxPool2D):
+                layer.update(grads[layer_name], self.optimizer)
     
     def one_epoch(self, x, y):
         """
@@ -110,17 +117,16 @@ class Model:
         args:
             x: input to the model
             y: labels
-            batch_size: batch size
         returns:
             loss
         """
-        # TODO: Implement one epoch of training
-        tmp = None
-        AL = tmp[None]
-        loss = None
-        dAL = None
-        grads = None
-        self.update(None)
+        # One epoch of training
+        tmp = self.forward(x)
+        AL = tmp[-1]
+        loss = self.criterion(AL, y)
+        dAL = self.criterion.backward(AL, y)
+        grads = self.backward(dAL, tmp, x)
+        self.update(grads)
         return loss
     
     def save(self, name):
@@ -131,114 +137,16 @@ class Model:
         """
         with open(name, 'wb') as f:
             pickle.dump((self.model, self.criterion, self.optimizer, self.layers_names), f)
-        
-    def load_model(self, name):
-        """
-        Load the model.
-        args:
-            name: name of the model
-        returns:
-            model, criterion, optimizer, layers_names
-        """
-        with open(name, 'rb') as f:
-            return pickle.load(f)
-        
-    def shuffle(self, m, shuffling):
-        order = list(range(m))
-        if shuffling:
-            return np.random.shuffle(order)
-        return order
-
-    def batch(self, X, y, batch_size, index, order):
-        """
-        Get a batch of data.
-        args:
-            X: input to the model
-            y: labels
-            batch_size: batch size
-            index: index of the batch
-                e.g: if batch_size = 3 and index = 1 then the batch will be from index [3, 4, 5]
-            order: order of the data
-        returns:
-            bx, by: batch of data
-        """
-        # TODO: Implement batch
-        last_index = None   # hint last index of the batch check for the last batch
-        batch = order[None: None]
-        # NOTICE: inputs are 4 dimensional or 2 demensional
-        if None:
-            bx = None
-            by = None
-            return None, None
-        else:
-            bx = None
-            by = None
-            return None, None
-
-    def compute_loss(self, X, y, batch_size):
-        """
-        Compute the loss.
-        args:
-            X: input to the model
-            y: labels
-            Batch_Size: batch size
-        returns:
-            loss
-        """
-        # TODO: Implement compute loss
-        m = None
-        order = None
-        cost = 0
-        for b in range(m // batch_size):
-            bx, by = None
-            tmp = None
-            AL = None
-            cost += None
-        return cost
-
-    def train(self, X, y, epochs, val=None, batch_size=3, shuffling=False, verbose=1, save_after=None):
-        """
-        Train the model.
-        args:
-            X: input to the model
-            y: labels
-            epochs: number of epochs
-            val: validation data
-            batch_size: batch size
-            shuffling: if True shuffle the data
-            verbose: if 1 print the loss after each epoch
-            save_after: save the model after training
-        """
-        # TODO: Implement training
-        train_cost = []
-        val_cost = []
-        # NOTICE: if your inputs are 4 dimensional m = X.shape[0] else m = X.shape[1]
-        m = None
-        for e in tqdm(1, epochs + 1):
-            order = self.shuffle(None, None)
-            cost = 0
-            for b in range(None):
-                bx, by = None
-                cost += None
-            train_cost.append(None)
-            if val is not None:
-                val_cost.append(None)
-            if verbose != False:
-                if e % verbose == 0:
-                    print("Epoch {}: train cost = {}".format(e, cost))
-                if val is not None:
-                    print("Epoch {}: val cost = {}".format(e, val_cost[-1]))
-        if save_after is not None:
-            self.save(save_after)
-        return train_cost, val_cost
     
-    def predict(self, X):
-        """
-        Predict the output of the model.
-        args:
-            X: input to the model
-        returns:
-            predictions
-        """
-        # TODO: Implement prediction
-        return None
+    def load_model(self, name):
+    # """
+    # Load the model.
+    # args:
+    #     name: name of the model
+    # returns:
+    #     model, criterion, optimizer, layers_names
+    # """
+        with open(name, 'rb') as f:
+            model, criterion, optimizer, layers_names = pickle.load(f)
+        return model, criterion, optimizer, layers_names
+                    

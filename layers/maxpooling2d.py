@@ -97,4 +97,49 @@ class MaxPool2D:
         averageMatrix = np.ones(shape) * average
         return averageMatrix
     
-    
+    def backward(self, dZ, A_prev):
+        """
+        Backward pass for max pooling layer.
+            args:
+                dA: gradient of cost with respect to the output of the max pooling layer
+                A_prev: activations from previous layer (or input data)
+            returns:
+                dA_prev: gradient of cost with respect to the input of the max pooling layer
+        """
+        # Get input shape
+        (batch_size, H_prev, W_prev, C_prev) = A_prev.shape
+        # Get kernel and stride sizes
+        (f_h, f_w) = self.kernel_size
+        strideh, stridew = self.stride
+        # Compute output shape
+        H = int(1 + (H_prev - f_h) / strideh)
+        W = int(1 + (W_prev - f_w) / stridew)
+        # Initialize output tensor
+        dA_prev = np.zeros_like(A_prev)
+        # Loop over batch
+        for i in range(batch_size):
+            # Loop over vertical axis of output volume
+            for h in range(H):
+                h_start = h * strideh
+                h_end = h_start + f_h
+                # Loop over horizontal axis of output volume
+                for w in range(W):
+                    w_start = w * stridew
+                    w_end = w_start + f_w
+                    # Loop over channels of output volume
+                    for c in range(C_prev):
+                        # Extract slice of input volume
+                        a_prev_slice = A_prev[i, h_start:h_end, w_start:w_end, c]
+                        # Find the mask for the max value in the slice
+                        if self.mode == "max":
+                            mask = self.create_mask_from_window(a_prev_slice)
+                            # Compute gradient of output with respect to input
+                            dA_prev[i, h_start:h_end, w_start:w_end, c] += mask * dZ[i, h, w, c]
+                        elif self.mode == "average":
+                            # Compute gradient of output with respect to input
+                            shape = (f_h, f_w)
+                            dA_prev[i, h_start:h_end, w_start:w_end, c] += self.distribute_value(dZ[i, h, w, c], shape)
+                        else:
+                            raise ValueError("Invalid mode")
+        # Return the gradient of cost with respect to the input of the layer
+        return dA_prev, None   
