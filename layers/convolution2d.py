@@ -7,7 +7,6 @@ import numpy as np
 # computing the dot product between the kernel and the input at each image position.
 class Conv2D:
     #properties
-    
     # in_channels -> the number of input data channels
     # out_channels -> the number of output data channels
     # name -> a string identifier for the layer
@@ -15,7 +14,7 @@ class Conv2D:
     # stride -> the stride(steps) for the kernel when sliding over the input, its for height and width sliding.
     # padding: the amount of padding to add to the input
     # initialize_method: a string indicating the method to use for initializing the weights of the kernel
-    #parameters -> layer kernel weights and bias
+    # parameters -> layer kernel weights and bias
     
     def __init__(self, in_channels, out_channels, name, kernel_size=(1, 1), stride=(1, 1), padding=(1, 1), initialize_method="random"):
         self.in_channels = in_channels
@@ -50,20 +49,18 @@ class Conv2D:
             raise ValueError("Invalid initialization method")
     
     
-    #Initialize bias with zeros and layer out put count which will show the number of our perceptrons.      
+    # Initialize bias with zeros and layer out put count which will show the number of our perceptrons.      
     def initialize_bias(self):
         return np.zeros((self.output_size, 1))
     
 
-    #this function will calculate the shape of the convolutional layer output.
-    #argument -> input_shape: shape of the input of the convolutional layer{
-    # 
-    # batch_size -> the number of examples in a batch.
-    # chanel_count is the number of channels in each example, which is typically 1 for grayscale images or 3 for RGB images! ...
-    # height is the height of the input image in pixels.
-    # width is the width of the input image in pixels.
-    # }
-    #returns -> target_shape: shape of the output of the convolutional layer -> batch_size , output Chanel's count and dimensions
+    # this function will calculate the shape of the convolutional layer output.
+    # argument -> input_shape: shape of the input of the convolutional layer
+    #       batch_size -> the number of examples in a batch.
+    #       chanel_count is the number of channels in each example, which is typically 1 for grayscale images or 3 for RGB images! ...
+    #       height is the height of the input image in pixels.
+    #       width is the width of the input image in pixels.
+    # returns -> target_shape: shape of the output of the convolutional layer -> batch_size , output Chanel's count and dimensions
     def target_shape(self, input_shape):
         
         #extracting input and kernel and stride and padding for output shape calculation
@@ -93,8 +90,7 @@ class Conv2D:
     
     # this function will convolve a slice of the input with the kernel.
     # at first, we will do element-wise multiplication between the slice of input and the kernel!
-    # then we will do summation over all entries of the volume s.
-    # at last, we will Add bias to the result of the dot product.
+    # then we will do summation over all entries of the volume s, at last, we will Add bias to the result of the dot product.
     # arguments ->
     #       a_slic_prev: slice of the input data
     #       w_kernel: kernel
@@ -127,7 +123,7 @@ class Conv2D:
         stride_h, stride_w = self.stride
         padding_h, padding_w = self.padding
 
-        _, chanel_count , output_height, output_width = self.target_shape(input_shape)
+        _ , chanel_count , output_height, output_width = self.target_shape(input_shape)
         
         # Initialize output with zeros
         output = np.zeros((batch_size, output_height , output_width , chanel_count))
@@ -153,53 +149,65 @@ class Conv2D:
                         output[i, h, w, c] = self.single_step_convolve(a_slice_prev, output_width[..., c], bias[..., c])
     
         return output
-
+    
+    # Backward pass for convolutional layer.
+    # arguments:
+    #     dZ: gradient of the cost with respect to the output of the convolutional layer
+    #     A_prev: activations from previous layer (or input data)
+    #     A_prev.shape = (batch_size, H_prev, W_prev, C_prev)
+    # returns:
+    #     dA_prev: gradient of the cost with respect to the input of the convolutional layer
+    #     gradients: list of gradients with respect to the weights and bias
     def backward(self, dZ, A_prev):
-        """
-        Backward pass for convolutional layer.
-        args:
-            dZ: gradient of the cost with respect to the output of the convolutional layer
-            A_prev: activations from previous layer (or input data)
-            A_prev.shape = (batch_size, H_prev, W_prev, C_prev)
-        returns:
-            dA_prev: gradient of the cost with respect to the input of the convolutional layer
-            gradients: list of gradients with respect to the weights and bias
-        """
-        # TODO: Implement backward pass
-        W, b = None
-        (batch_size, H_prev, W_prev, C_prev) = None
-        (kernel_size_h, kernel_size_w, C_prev, C) = None
-        stride_h, stride_w = None
-        padding_h, padding_w = None
-        H, W = None
-        dA_prev = None  # hint: same shape as A_prev
-        dW = None    # hint: same shape as W
-        db = None    # hint: same shape as b
-        A_prev_pad = None # hint: use self.pad()
-        dA_prev_pad = None # hint: use self.pad()
-        for i in range(None):
-            a_prev_pad = A_prev_pad[i]
-            da_prev_pad = dA_prev_pad[i]
-            for h in range(None):
-                for w in range(None):
-                    for c in range(None):
-                        h_start = None
-                        h_end = h_start + None
-                        w_start = None
-                        w_end = w_start + None
-                        a_slice = a_prev_pad[h_start:h_end, w_start:w_end, :]
-                        da_prev_pad += None # hint: use element-wise multiplication of dZ and W
-                        dW[..., c] += None # hint: use element-wise multiplication of dZ and a_slice
-                        db[..., c] += None # hint: use dZ
-            dA_prev[i, :, :, :] = None # hint: remove padding (trick: pad:-pad)
+        
+        # Get kernel weights and bias
+        W, b = self.parameters
+        # Get shapes of input, kernel, and output tensors
+        (batch_size, previous_height, previous_width, kernel_channels) = A_prev.shape
+        
+        #get the shape of kernel
+        (batch_size  ,kernel_height, kernel_width, kernel_channels) = W.shape
+
+        stride_height, stride_width = self.stride
+        padding_height, padding_width = self.padding
+
+        H, W = dZ.shape[1:3]
+        # Initialize dA_prev, dW, and db to zeros
+        dA_prev = np.zeros((batch_size, previous_height, previous_width, kernel_channels))
+        dW = np.zeros((kernel_height, kernel_width, kernel_channels, batch_size))
+        db = np.zeros((1, 1, 1, batch_size))
+        # Pad input tensor
+        A_prev_pad = self.pad(A_prev, (padding_height, padding_width))
+        dA_prev_pad = self.pad(dA_prev, (padding_height, padding_width))
+        # Loop over batch
+        for i in range(batch_size):
+        # Loop over vertical axis of output volume
+            for h in range(H):
+                h_start = h * stride_height
+                h_end = h_start + kernel_height
+                # Loop over horizontal axis of output volume
+                for w in range(W):
+                    w_start = w * stride_width
+                    w_end = w_start + kernel_width
+                    # Loop over channels of output volume
+                    for c in range(batch_size):
+                        # Extract slice of input volume
+                        a_slice = A_prev_pad[i, h_start:h_end, w_start:w_end, :]
+                        # Update gradients
+                        dA_prev_pad[i, h_start:h_end, w_start:w_end, :] += np.multiply(W[..., c], dZ[i, h, w, c])
+                        dW[..., c] += np.multiply(a_slice, dZ[i, h, w, c])
+                        db[..., c] += dZ[i, h, w, c]
+
+        # Remove padding from dA_prev_pad
+        dA_prev = dA_prev_pad[:, padding_height:-padding_height, padding_width:-padding_width, :]
+        # Return gradients
         grads = [dW, db]
         return dA_prev, grads
     
+  
+    # this function will Update parameters of the convolutional layer.
+    # arguments: 
+    #     optimizer: optimizer to use for updating parameters
+    #     grads: list of gradients with respect to the weights and bias
     def update_parameters(self, optimizer, grads):
-        """
-        Update parameters of the convolutional layer.
-        args:
-            optimizer: optimizer to use for updating parameters
-            grads: list of gradients with respect to the weights and bias
-        """
         self.parameters = optimizer.update(grads, self.name)
