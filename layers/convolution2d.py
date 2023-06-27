@@ -9,7 +9,7 @@ class Conv2D:
     #properties
     # in_channels -> the number of input data channels
     # out_channels -> the number of output data channels
-    # name -> a string identifier for the layer
+    # name -> a string identifier for the layer, we will use it for distinguishing con layers from fully connected layers
     # kernel_size ->  the size of the kernel for height and width
     # stride -> the stride(steps) for the kernel when sliding over the input, its for height and width sliding.
     # padding: the amount of padding to add to the input
@@ -21,10 +21,10 @@ class Conv2D:
         self.out_channels = out_channels
         self.name = name
         self.initialize_method = initialize_method
-
-        self.kernel_size = (kernel_size, kernel_size) if isinstance(kernel_size, int) else kernel_size
+        self.kernel_size = (kernel_size, kernel_size) if isinstance(kernel_size, int) else kernel_size #for tuple mode or directive integer passing
         self.stride = (stride, stride) if isinstance(stride, int) else stride
         self.padding = (padding, padding) if isinstance(padding, int) else padding
+        #initializing kernel weights and bias
         self.parameters = [self.initialize_weights(), self.initialize_bias()]
 
 
@@ -34,16 +34,16 @@ class Conv2D:
        
         if self.initialize_method == "random":
             # Initialize weights with random values from a normal distribution
-            return np.random.randn(self.kernel_size[0], self.kernel_size[1], self.in_channels, self.out_channels)
+            return np.random.randn(self.in_channels ,self.out_channels, self.kernel_size[0], self.kernel_size[1])
 
         elif self.initialize_method == "xavier":
             # Initialize weights with random values from a uniform distribution with a range determined by the Xavier initialization
             range_value = np.sqrt( 1 / (self.in_channels * self.kernel_size[0] * self.kernel_size[1] + self.out_channels))
-            return np.random.uniform(-range_value, range_value, (self.kernel_size[0], self.kernel_size[1], self.in_channels, self.out_channels))
+            return np.random.uniform(-range_value, range_value, (self.in_channels ,self.out_channels, self.kernel_size[0], self.kernel_size[1]))
          
         elif self.initialize_method == "he":
             # Initialize weights with random values from a normal distribution with a standard deviation determined by the He initialization
-            return np.random.randn(self.kernel_size[0], self.kernel_size[1], self.in_channels, self.out_channels) *  sqrt(2 / (self.in_channels * self.kernel_size[0] * self.kernel_size[1]))
+            return np.random.randn(self.in_channels ,self.out_channels, self.kernel_size[0], self.kernel_size[1]) *  sqrt(2 / (self.in_channels * self.kernel_size[0] * self.kernel_size[1]))
 
         else:
             raise ValueError("Invalid initialization method")
@@ -52,7 +52,6 @@ class Conv2D:
     # Initialize bias with zeros and layer out put count which will show the number of our perceptrons.      
     def initialize_bias(self):
         return np.zeros((self.output_size, 1))
-    
 
     # this function will calculate the shape of the convolutional layer output.
     # argument -> input_shape: shape of the input of the convolutional layer
@@ -70,21 +69,20 @@ class Conv2D:
         padding_height, padding_width = self.padding
         
         # Calculate the height and width of the output
-        output_height = (height + 2*padding_height - kernel_height)//stride_height + 1
-        output_width = (width + 2*padding_width - kernel_width)//stride_width + 1
+        output_height = (height + 2*padding_height - kernel_height)/stride_height + 1
+        output_width = (width + 2*padding_width - kernel_width)/stride_width + 1
         chanel_count = self.out_channels
 
         return (batch_size, chanel_count , output_height, output_width)
     
+    # Pad the input with zeros.
+    # args:
+    #     A: input to be padded
+    #     padding: tuple of padding for height and width
+    #     pad_value: value to pad with
+    # returns:
+    #     A_padded: padded input
     def pad(self, A, padding, pad_value=0):
-        # Pad the input with zeros.
-        # args:
-        #     A: input to be padded
-        #     padding: tuple of padding for height and width
-        #     pad_value: value to pad with
-        # returns:
-        #     A_padded: padded input
-       
         A_padded = np.pad(A, ((0, 0), (padding[0], padding[0]), (padding[1], padding[1]), (0, 0)), mode="constant", constant_values=(pad_value, pad_value))
         return A_padded
     
@@ -98,7 +96,7 @@ class Conv2D:
     # returns:  convolved value
     def single_step_convolve(self, a_slic_prev, w_kernel, bias):
         
-        summation_of_dot_product = np.sum( np.multiply(a_slic_prev, w_kernel) )
+        summation_of_dot_product = np.sum(np.multiply(a_slic_prev, w_kernel) ) #dot product
         convolved_product = float(summation_of_dot_product + bias)
         return convolved_product
 
@@ -108,7 +106,6 @@ class Conv2D:
     #         A_prev.shape = (batch_size, H_prev, W_prev, C_prev)
     #     returns:
     #         A: output of the convolutional layer
-    
     def forward(self, A_prev):
 
         # Get kernel shape and bias

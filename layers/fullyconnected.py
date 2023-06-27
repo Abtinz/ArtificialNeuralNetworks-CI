@@ -3,7 +3,7 @@ import numpy as np
 
 class FC:
 
-    # self name -> will use for updating weight's
+    # name -> a string identifier for the layer, we will use it for distinguishing con layers from fully connected layers
     # self initialize_method is used in weights initializing ...
     def __init__(self, input_size : int, output_size : int, name : str, initialize_method : str="random"):
         self.input_size = input_size
@@ -36,7 +36,7 @@ class FC:
     def initialize_bias(self):
         return np.zeros((self.output_size, 1))
     
-    #here, forwarding in o=network is implemented
+    #here, forwarding in our network is implemented for this layer
     #A_prev -> the are activations that reached from previous layer(they are layer inputs)
     #A_prev.shape returns (batch_size, input_size) so we can know the output size of our last layer which is input size of current layer
     #it will return a out put of this fully connected forwarding
@@ -56,7 +56,6 @@ class FC:
         # output X(input) * weight_transpose +bias
         output = np.dot(weight.T, A_prev_tmp) + bias
         return output
-    
   
     # Backward pass for fully connected layer.
     #    args:
@@ -65,7 +64,6 @@ class FC:
     #     returns:
     #         dA_prev: derivative of the cost with respect to the activation of the previous layer
     #         grads: list of gradients for the weights and bias
-
     def backward(self, dZ, A_prev):
    
         A_prev_tmp = np.copy(A_prev)
@@ -86,10 +84,4 @@ class FC:
         return dA_prev, grads
     
     def update_parameters(self, optimizer, grads):
-        """
-        Update the parameters of the layer.
-            args:
-                optimizer: optimizer object
-                grads: list of gradients for the weights and bias
-        """
         self.parameters = optimizer.update(grads, self.name)

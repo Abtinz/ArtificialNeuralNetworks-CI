@@ -8,7 +8,6 @@ class GD:
         self.learning_rate = learning_rate
         self.layers = layers_list
     
-    
     #Update the parameters of the layer.
     #formula -> ./optimizers/GradientDescent.png
     #  arguments:
