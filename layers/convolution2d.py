@@ -51,7 +51,7 @@ class Conv2D:
     
     # Initialize bias with zeros and layer out put count which will show the number of our perceptrons.      
     def initialize_bias(self):
-        return np.zeros((self.output_size, 1))
+        return np.zeros((self.out_channels, 1))
 
     # this function will calculate the shape of the convolutional layer output.
     # argument -> input_shape: shape of the input of the convolutional layer

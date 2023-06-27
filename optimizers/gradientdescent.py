@@ -2,7 +2,7 @@
 #this class will help us to implement gradient descent 
 #slf parameters -> learning rate and layers_list : dictionary of layers name and layer object
 
-class GD:
+class  GradientDescent:
 
     def __init__(self, layers_list: dict, learning_rate: float):
         self.learning_rate = learning_rate

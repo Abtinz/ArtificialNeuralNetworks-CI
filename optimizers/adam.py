@@ -1,5 +1,4 @@
 import numpy as np
-from .gradientdescent import GradientDescent
 
 class Adam:
     def __init__(self, layers_list, learning_rate=0.001, beta1=0.9, beta2=0.999, epsilon=1e-8):
